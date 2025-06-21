@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>اختصار روابط SwiftLnx للفريق</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      direction: rtl;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 15px;
+      display: block;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border-radius: 5px;
+      word-break: break-all;
+    }
+    #error {
+      color: red;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>اختصار روابط SwiftLnx - فريقك</h1>
+
+  <label for="longUrl">ادخل الرابط الطويل:</label>
+  <input type="text" id="longUrl" placeholder="https://example.com/very/long/link" />
+
+  <label for="alias">اسم مختصر (اختياري):</label>
+  <input type="text" id="alias" placeholder="مثلاً: myteam123" />
+
+  <button onclick="shortenUrl()">اختصر الرابط</button>
+
+  <div id="result"></div>
+  <div id="error"></div>
+
+  <script>
+    async function shortenUrl() {
+      const apiToken = '6e397f640a57109f2df55a1eaef7469e7710b7b0';
+      const longUrlInput = document.getElementById('longUrl');
+      const aliasInput = document.getElementById('alias');
+      const resultDiv = document.getElementById('result');
+      const errorDiv = document.getElementById('error');
+
+      resultDiv.textContent = '';
+      errorDiv.textContent = '';
+
+      let longUrl = longUrlInput.value.trim();
+      let alias = aliasInput.value.trim();
+
+      if (!longUrl) {
+        errorDiv.textContent = 'الرجاء إدخال رابط طويل صالح.';
+        return;
+      }
+
+      try {
+        // ترميز الرابط والاسم المختصر
+        const encodedUrl = encodeURIComponent(longUrl);
+        let apiUrl = `https://swiftlnx.com/api?api=${apiToken}&url=${encodedUrl}&format=json`;
+
+        if (alias) {
+          apiUrl += `&alias=${encodeURIComponent(alias)}`;
+        }
+
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          errorDiv.textContent = 'حدث خطأ في الاتصال بالخدمة.';
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          resultDiv.innerHTML = `<strong>الرابط المختصر:</strong> <a href="${data.shortenedUrl}" target="_blank">${data.shortenedUrl}</a>`;
+        } else {
+          errorDiv.textContent = 'خطأ: ' + (data.message || 'حدث خطأ غير معروف');
+        }
+      } catch (e) {
+        errorDiv.textContent = 'حدث خطأ في العملية: ' + e.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
+
